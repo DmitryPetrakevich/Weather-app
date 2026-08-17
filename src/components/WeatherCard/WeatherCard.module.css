@@ -1,0 +1,27 @@
+.card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 300px;
+    min-width: 200px;
+    min-height: 150px;
+    max-height: 200px;
+    background-color: rgb(245, 243, 243);
+    border: 1px solid black;
+    transition: all 0.3s ease;
+    padding: 8px;
+    border-radius: 3px;
+}
+
+.card:hover {
+    background-color: rgb(222, 221, 221);
+}
+
+.cardTop {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-between;
+    align-items: flex-start;
+}
