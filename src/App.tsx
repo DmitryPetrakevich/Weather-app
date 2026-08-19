@@ -1,49 +1,99 @@
 import { useState } from 'react'
-import './App.css'
-import Input from './components/ui/Input/Input.tsx';
-import Button from './components/ui/Button/Button.tsx';
-import WeatherCard from './components/WeatherCard/WeatherCard.tsx';
-import CardLine from './components/CardLine/CardLine.tsx';
+import { useSelector, useDispatch } from 'react-redux'
+import type { RootState, AppDispatch } from './store'
+import { fetchWeather, clearWeather } from './store/weatherSlice'
+import WeatherCard from './components/WeatherCard/WeatherCard'
+import PageHeader from './components/PageHeader/PageHeader'
 
 function App() {
-  const [city, setCity] = useState("");
-  const [data, setData] = useState();
+  const [cityInput, setCityInput] = useState('')
+  const dispatch = useDispatch<AppDispatch>()
 
-async function getWeather() {
-  const geocodingResponse = await fetch(
-    `https://geocoding-api.open-meteo.com/v1/search?name=${city}&count=1&language=ru&format=json`
+  const { city, dataByDate, loading, error } = useSelector(
+    (state: RootState) => state.weather
   )
 
-  const geocodingData = await geocodingResponse.json()
+  const handleSearch = () => {
+    if (!cityInput.trim()) return
+    dispatch(fetchWeather(cityInput.trim()))
+  }
 
-  const latitude = geocodingData.results[0].latitude
-  const longitude = geocodingData.results[0].longitude
-
-  const weatherResponse = await fetch(
-    `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m`
-  )
-
-  const weatherData = await weatherResponse.json()
-
-  setData(weatherData);
-}
+  const handleClear = () => {
+    dispatch(clearWeather())
+  }
 
   return (
-    <>
-    <Input value={city} onChange={(e) => setCity(e.target.value)} />
-   
-    Вы ввели {city}
+    <div className="app">
+      <PageHeader></PageHeader>
 
-    <Button text='Поиск' onClick={getWeather}> 
-      
-    </Button>
+      <input
+        value={cityInput}
+        onChange={(e) => setCityInput(e.target.value)}
+        placeholder="Введите город"
+      />
 
-    <h6>
-      {JSON.stringify(data, null, 2)}
-    </h6>
+      <button onClick={handleSearch} disabled={loading}>
+        {loading ? 'Загрузка...' : 'Поиск'}
+      </button>
 
-    <CardLine></CardLine>
-    </>
+      <button onClick={handleClear}>Очистить</button>
+
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+
+      {city && <h2>{city}</h2>}
+
+      {Object.entries(dataByDate).map(([date, day]) => {
+        const hoursEvery3h = day.hours.filter((hour) => {
+          const hourNumber = new Date(hour.time).getHours()
+          return hourNumber % 3 === 0
+        })
+
+        return (
+          <div key={date}>
+            {/* Сводка за день */}
+            <h3>{date}</h3>
+            <div>Макс. температура: {day.tempMax}°</div>
+            <div>Мин. температура: {day.tempMin}°</div>
+            <div>Осадки за день: {day.precipitationSum} мм</div>
+            <div>Макс. вероятность дождя: {day.precipitationProbabilityMax}%</div>
+            <div>Макс. ветер: {day.windSpeedMax} км/ч</div>
+
+            {/* Часы (каждые 3 часа) */}
+            <div>
+              <strong>По часам:</strong>
+              {hoursEvery3h.map((hour) => {
+                const time = hour.time.split('T')[1] // "09:00"
+
+                return (
+                  <div key={hour.time}>
+                    {/* <div><strong>{time}</strong></div>
+                    <div>Температура: {hour.temperature}°</div>
+                    <div>Ощущается: {hour.apparentTemperature}°</div>
+                    <div>Облачность: {hour.cloudCover}%</div>
+                    <div>Вероятность дождя: {hour.precipitationProbability}%</div>
+                    <div>Осадки: {hour.precipitation} мм</div>
+                    <div>Дождь: {hour.rain} мм</div>
+                    <div>Влажность: {hour.humidity}%</div>
+                    <div>Ветер: {hour.windSpeed} км/ч</div>
+                    <div>Направление ветра: {hour.windDirection}°</div>
+                    <div>Код погоды: {hour.weatherCode}</div> */}
+                    <WeatherCard 
+                    temperature={hour.temperature} 
+                    weatherCode={hour.weatherCode} 
+                    tempMin={day.tempMin}
+                    tempMax={day.tempMax}
+                    date={date}
+                    />
+                  </div>
+
+                  
+                )
+              })}
+            </div>
+          </div>
+        )
+      })}
+    </div>
   )
 }
 

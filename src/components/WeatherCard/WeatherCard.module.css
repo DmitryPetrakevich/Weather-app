@@ -1,16 +1,17 @@
 .card {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     justify-content: space-between;
     width: 100%;
-    max-width: 300px;
-    min-width: 200px;
+    max-width: 320px;
+    min-width: 220px;
     min-height: 150px;
     max-height: 200px;
     background-color: rgb(245, 243, 243);
     border: 1px solid black;
     transition: all 0.3s ease;
-    padding: 8px;
+    margin-bottom: 10px;
+    padding: 10px;
     border-radius: 3px;
 }
 
@@ -20,8 +21,48 @@
 
 .cardTop {
     display: flex;
-    flex-direction: row;
-    width: 100%;
+    flex-direction: column;
     justify-content: space-between;
     align-items: flex-start;
+}
+
+.cardIcon {
+    width: 70px;
+    height: 70px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.cardDate {
+    font-size: 18px;
+    color: rgb(101, 101, 235);
+}
+
+.cardTemperature {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+}
+
+.cardTemperatureMin {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 8px;
+    background-color: rgb(203, 237, 201);
+    border-radius: 3px;
+    font-size: 20px;
+    margin-top: 10px;
+    font-weight: 600;
+}
+
+.cardTemperatureMax {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 8px;
+    background-color: rgb(229, 229, 185);
+    border-radius: 3px;
+    font-size: 20px;
+    font-weight: 600;
 }
